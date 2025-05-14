@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 
-export async function POST(req:NextRequest,res:NextResponse){
+export async function POST(req:NextRequest){
     try {
 
         const {userId}=await auth()
@@ -32,6 +32,6 @@ export async function POST(req:NextRequest,res:NextResponse){
         },{status:200})
 
 } catch (error) {
-        //console.log(error);
+        console.log(error);
     }
 }

@@ -6,7 +6,6 @@ import { Message, streamText } from "ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
-// export const runtime = "edge";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_CHAT_API_KEY!);
 

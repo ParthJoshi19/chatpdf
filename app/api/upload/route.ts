@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   try {
-    const res = await new Promise((resolve, reject) => {
+    const res = await new Promise<any>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { resource_type: "raw",folder:'chatpdf-folder'},
         (error, result) => {

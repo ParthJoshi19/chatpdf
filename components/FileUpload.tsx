@@ -48,7 +48,9 @@ const FileUpload = () => {
         }
         mutate(result, {
           onSuccess: (chat_id) => {
-            router.push(`/chat/${chat_id.chat_id}`)
+            // console.log(typeof(chat_id.chat_id))
+            const chatId=chat_id.chat_id as string
+            router.push(`/chat/${chatId}`)
           },
           onError: (err) => {
             //console.log(err);

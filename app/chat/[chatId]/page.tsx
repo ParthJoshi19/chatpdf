@@ -1,50 +1,53 @@
+import ChatComponent from "@/components/ChatComponents";
 import ChatSideBar from "@/components/ChatSideBar";
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
-import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
-import ChatComponent from "@/components/ChatComponents";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import React from "react";
 
-type Prop = {
+type Props = {
   params: {
     chatId: string;
   };
 };
 
-const Chatpage = async (props: Prop) => {
-  const { chatId } = await props.params;
+const ChatPage = async ({ params }: { params: Promise<{ chatId: string }> }) => {
   const { userId } = await auth();
-
+  const { chatId } = await params;
   if (!userId) {
-    return;
+    return redirect("/sign-in");
   }
-
   const _chats = await db.select().from(chats).where(eq(chats.userId, userId));
   if (!_chats) {
-    return;
+    return redirect("/");
   }
   if (!_chats.find((chat) => chat.id === parseInt(chatId))) {
-    return;
+    return redirect("/");
   }
 
-  const currChat=_chats.find(chat=>chat.id===parseInt(chatId))
+  const currentChat = _chats.find((chat) => chat.id === parseInt(chatId));
 
   return (
-    <div className="flex max-h-screen">
-      <div className="flex w-full max-h-screen overflow-y-scroll">
+    <div className="flex max-h-screen overflow-scroll">
+      <div className="flex w-full max-h-screen overflow-scroll">
+        {/* chat sidebar */}
         <div className="flex-[1] max-w-xs">
-          <ChatSideBar chats={_chats} chatId={parseInt(chatId)}/>
+          <ChatSideBar chats={_chats} chatId={parseInt(chatId)}  />
         </div>
-        <div className="max-h-screen p-4 overflow-scroll flex-[5]">
-          <PDFViewer pdf_url={currChat?.pdfUrl || ''}/>
+        {/* pdf viewer */}
+        <div className="max-h-screen p-4 oveflow-scroll flex-[5]">
+          <PDFViewer pdf_url={currentChat?.pdfUrl || ""} />
         </div>
+        {/* chat component */}
         <div className="flex-[3] border-l-4 border-l-slate-200">
-          <ChatComponent chatId={parseInt(chatId)}/>
+          <ChatComponent chatId={parseInt(chatId)} />
         </div>
       </div>
     </div>
   );
 };
 
-export default Chatpage;
+export default ChatPage;
