@@ -19,7 +19,7 @@ const FileUpload = () => {
       file_name: string;
     }) => {
       //console.log(file_key,file_name)
-      const res = await axios.post("http://localhost:3000/api/create-chat", { file_key, file_name });
+      const res = await axios.post("/api/create-chat", { file_key, file_name });
       return res.data;
     },
   });

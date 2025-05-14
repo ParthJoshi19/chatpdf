@@ -44,7 +44,7 @@ type PDFPage = {
 };
 
 export async function loadFileToPineCone(file_key: string) {
-  const res = await axios.get("http://localhost:3000/api/download", {
+  const res = await axios.get("/api/download", {
     params: { file_key },
   });
 
