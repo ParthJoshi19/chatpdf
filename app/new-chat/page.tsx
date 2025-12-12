@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import { useCallback, useEffect, useState } from "react";
 import pdfToText from "react-pdftotext";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [file, setFile] = useState<File | null>(null);
-  const { user } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
+  const router = useRouter();
   const [status, setStatus] = useState<
     "idle" | "uploading" | "success" | "error"
   >("idle");
@@ -15,9 +17,32 @@ export default function Page() {
   const [text, setText] = useState("");
   const [userId, setUserId] = useState<string>("");
 
+  // Redirect to home if not authenticated
   useEffect(() => {
-    setUserId(user?.id || "");
-  }, []);
+    if (isLoaded && !isSignedIn) {
+      router.push("/");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  useEffect(() => {
+    if (user?.id) {
+      setUserId(user.id);
+    }
+  }, [user?.id]);
+
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render the page if not signed in (will redirect)
+  if (!isSignedIn) {
+    return null;
+  }
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
@@ -95,8 +120,16 @@ export default function Page() {
         )}
       </div>
       <Button
-        onClick={() => (window.location.href = `/chat/${userId}`)}
-        className="text-white bg-slate-700 rounded-4xl"
+        onClick={() => {
+          if (userId) {
+            router.push(`/chat/${userId}`);
+          } else {
+            setMessage("Please wait for user data to load");
+            setStatus("error");
+          }
+        }}
+        disabled={!userId || status === "uploading"}
+        className="text-white bg-slate-700 rounded-4xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Go to Chat
       </Button>

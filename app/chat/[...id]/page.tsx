@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 
 interface Chat {
   id: string;
@@ -16,6 +17,7 @@ interface Chat {
 }
 
 export default function ChatPage() {
+  const { isLoaded, isSignedIn } = useUser();
   const params = useParams();
   const router = useRouter();
   const activeId = Array.isArray((params as any)?.id)
@@ -30,8 +32,32 @@ export default function ChatPage() {
   const [loadingChats, setLoadingChats] = useState<boolean>(false);
   const [chatsError, setChatsError] = useState<string | null>(null);
 
-  if(!activeId){
-    router.push("/new-chat");
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  // Check if activeId exists, redirect if not
+  useEffect(() => {
+    if (isLoaded && isSignedIn && !activeId) {
+      router.push("/new-chat");
+    }
+  }, [activeId, isLoaded, isSignedIn, router]);
+
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render the page if not signed in (will redirect)
+  if (!isSignedIn) {
+    return null;
   }
 
   useEffect(() => {
