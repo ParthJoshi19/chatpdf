@@ -14,6 +14,32 @@ pnpm dev
 bun dev
 ```
 
+### Clerk + Supabase User Sync
+
+- Set environment variables in `.env`:
+	- `SUPABASE_URL`
+	- `SUPABASE_SERVICE_ROLE_KEY` (server-side only; keep secret)
+	- `CLERK_WEBHOOK_SECRET` (from Clerk Webhooks > Signing secret)
+
+- Create a `profiles` table in Supabase:
+	```sql
+	create table if not exists profiles (
+		id text primary key,
+		email text,
+		first_name text,
+		last_name text,
+		image_url text,
+		created_at timestamptz,
+		updated_at timestamptz
+	);
+	```
+
+- In Clerk Dashboard, add a Webhook pointing to:
+	- URL: `https://your-domain.com/api/webhooks/clerk` (or `http://localhost:3000/api/webhooks/clerk` for local testing)
+	- Subscribe to events: `user.created`, `user.updated`
+
+- The webhook will insert/update records in Supabase automatically.
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
